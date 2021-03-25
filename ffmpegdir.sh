@@ -16,7 +16,7 @@ cat source.txt | while read line
 do
        # lame -a -h -b 32  --resample 22.05 --lowpass 9 "$line"  "encoded/$line"
         # unfortunately, lame can't read m4a
-        outline=${line/m4a/mp3}
+        outline=${line/ogg/mp3}
         #echo "Now about to encode $line"
         #echo "to encoded/$outline"
         ((i=i+1))
@@ -24,10 +24,12 @@ do
          
         #sleep 5
         ffmpeg -hide_banner -loglevel error -nostdin -y -i "$line" -ac 1 -ab 32000 -ar 22050  "encoded/$outline" 
-        wait
-        echo "Done encoded/$outline"
         # need the nostdin, otherwise ffmpeg swallows some characters from stdin
         # https://superuser.com/questions/1492507/why-does-ffmpeg-require-nostdin-in-while-loop
+        FILESIZE=$(stat -c%s "$outline")
+        echo "Done, Size of $outline = $FILESIZE bytes."
+        #https://unix.stackexchange.com/questions/16640/how-can-i-get-the-size-of-a-file-in-a-bash-script
+        
       
 done
 
