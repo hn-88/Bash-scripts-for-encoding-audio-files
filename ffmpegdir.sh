@@ -10,31 +10,25 @@
 # 4. encoded subdirectory with internal paths must exist - to do that, one way is mkdir encoded; cp -R nameofsourcedir encoded/nameofsourcedir
 
 # Encode the new files
-terminal=`tty`
-        # terminal : the filename of the terminal connected to standard input
-        # tty - prints the file name of the terminal connected to standard input
-
-exec < source.txt
-        # The file passed as an argument becomes the standard input
 
 i=0
-while read line
+cat source.txt | while read line
 do
        # lame -a -h -b 32  --resample 22.05 --lowpass 9 "$line"  "encoded/$line"
         # unfortunately, lame can't read m4a
         outline=${line/m4a/mp3}
-        echo "Now about to encode $line"
-        echo "to encoded/$outline"
+        #echo "Now about to encode $line"
+        #echo "to encoded/$outline"
         ((i=i+1))
-        echo this is file number $i
+        echo Processing files... number $i
          
-        sleep 1
-        ffmpeg -y -i "$line" -ac 1 -ab 32000 -ar 22050 "encoded/$outline" 2> /dev/null
+        #sleep 5
+        ffmpeg -hide_banner -loglevel error -nostdin -y -i "$line" -ac 1 -ab 32000 -ar 22050  "encoded/$outline" 
         wait
         echo "Done encoded/$outline"
-         
-        # ffmpeg's errors were causing truncated filenames for the next file, missing the first 2 characters for example
-        
+        # need the nostdin, otherwise ffmpeg swallows some characters from stdin
+        # https://superuser.com/questions/1492507/why-does-ffmpeg-require-nostdin-in-while-loop
+      
 done
 
-exec < $terminal
+
